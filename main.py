@@ -97,7 +97,7 @@ def draw_grid(grid):
             cell = tk.Label(game_frame, bg=cell_color, width=4, height=2, borderwidth=0, relief="solid")
             cell.place(relheight=1/size, relwidth=1/size, anchor="nw", relx=j*(1/size), rely=i*(1/size))
             # cell.bind("<B1-Release>", lambda: grid_rebuild(color=grid[i][j]))
-            cell.bind("<B1-Release>", lambda e, color=grid[i][j]: grid_rebuild(e, color))
+            cell.bind("<ButtonRelease-1>", lambda e, color=grid[i][j]: grid_rebuild(e, color))
 
 draw_grid(x)
 root.mainloop()
