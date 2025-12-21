@@ -10,7 +10,7 @@
 
 import tkinter as tk
 import random
-
+import copy
 
 colors = {
     1: "#FF5555",  # RED
@@ -52,7 +52,32 @@ def grid_update(color: int):
     DO NOT DELETE THIS DOC STRING EVEN AFTER COMPLETING THIS FUNCTION  !!!
     """
 
-    pass
+    global x  
+    
+    start_color = x[0][0]
+    new_color = color
+    n = len(x)
+    
+    if start_color == new_color:
+        return x
+
+    def fill(r, c):
+        if r < 0 or r >= n or c < 0 or c >= n:
+            return
+        
+        if x[r][c] != start_color:
+            return
+        
+        x[r][c] = new_color
+
+        fill(r + 1, c)
+        fill(r - 1, c)
+        fill(r, c + 1)
+        fill(r, c - 1)
+
+    fill(0, 0)
+    
+    return x
 
 def greedy_color_selector(grid):
     """
