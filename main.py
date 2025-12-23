@@ -10,6 +10,7 @@
 
 import tkinter as tk
 import random
+from collections import deque
 import copy
 
 colors = {
@@ -94,7 +95,67 @@ def greedy_color_selector(grid):
 
     The colors are represented as numbers. The grid is a nested list of numbers. THE RETURN TYPE WILL ALSO BE A NUMBER.
     """
-    pass
+    
+def greedy_next_color(grid):
+    """
+    Selects the color that maximizes the size of the connected region
+    starting from the top-left corner (0,0) after one flood move.
+    """
+
+    rows = len(grid)
+    cols = len(grid[0])
+
+    # -------- helper: find flooded region --------
+    def flooded_region(g):
+        start_color = g[0][0]
+        visited = set()
+        q = deque([(0, 0)])
+        visited.add((0, 0))
+
+        while q:
+            x, y = q.popleft()
+            for dx, dy in [(1,0), (-1,0), (0,1), (0,-1)]:
+                nx, ny = x + dx, y + dy
+                if (0 <= nx < rows and
+                    0 <= ny < cols and
+                    (nx, ny) not in visited and
+                    g[nx][ny] == start_color):
+                    visited.add((nx, ny))
+                    q.append((nx, ny))
+        return visited
+
+    # -------- helper: apply flood fill --------
+    def apply_flood(g, new_color):
+        region = flooded_region(g)
+        for x, y in region:
+            g[x][y] = new_color
+
+    # ------------------------------------------
+
+    current_color = grid[0][0]
+    all_colors = set(cell for row in grid for cell in row)
+
+    best_color = current_color
+    max_region_size = -1
+
+    # Try each possible color (except current)
+    for color in all_colors:
+        if color == current_color:
+            continue
+
+        # Simulate the move
+        temp_grid = copy.deepcopy(grid)
+        apply_flood(temp_grid, color)
+
+        # Measure resulting region size
+        region_size = len(flooded_region(temp_grid))
+
+        if region_size > max_region_size:
+            max_region_size = region_size
+            best_color = color
+
+    return best_color
+
 
 size = 15
 x = grid_generator(size)
