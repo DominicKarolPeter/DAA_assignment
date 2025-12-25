@@ -88,7 +88,7 @@ graph, color = grid_generator(SIZE)
 
 
 # TODO
-def grid_update(selected_color: int) -> None:
+def grid_update(selectedC: int) -> None:
     """
     Docstring for grid_update
 
@@ -106,8 +106,23 @@ def grid_update(selected_color: int) -> None:
 
     DO NOT DELETE THIS DOC STRING EVEN AFTER COMPLETING THIS FUNCTION  !!!
     """
+    startN = 0
+    oldC = color[startN]
+    
+    if oldC == selectedC:
+        return
+    
+    q = [startN]
+    visited = {startN}
+    color[startN] = selectedC
 
-    pass
+    while q:
+        u = q.pop(0) # 
+        for v in graph[u]:
+            if v not in visited and color[v] == oldC:
+                color[v] = selectedC
+                visited.add(v)
+                q.append(v)
 
 def greedy_color_selector(graph, color) -> int:
     """
