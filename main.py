@@ -149,11 +149,17 @@ def grid_rebuild(selected_color: int):
     grid_update(selected_color)
     draw_grid(color)
 
+    text.insert(tk.END, f"Selected color: {selected_color}. Remaining moves is {MAX_MOVES}\n")
+    if MAX_MOVES <= 0:
+        text.insert(tk.END, "Game Over! No more moves left.\n")
+        canvas.unbind("<ButtonRelease-1>")
 
 def on_click(event):
+    global MAX_MOVES
     col = int(event.x // cell_size)
     row = int(event.y // cell_size)
 
+    MAX_MOVES -= 1
     if 0 <= row < SIZE and 0 <= col < SIZE:  # Ensuring to work only on clicks within the grid
         node = row * SIZE + col  # row 1, column 5 with a size of 6 would be node 11
         selected_color = color[node]
@@ -179,9 +185,33 @@ def draw_grid(color):
             fill=cell_color,
             outline=""
         )
-
-
-canvas.bind("<ButtonRelease-1>", on_click)
-
 draw_grid(color)
+
+tk.Label(root, text=f"{MODE} Mode", bg="#282A36", fg="white", font=("Arial", 24, "bold")).place(x=930, y=20, anchor="center")
+text_frame = tk.Frame(root)
+text_frame.place(x=930, y=50, width=700, height=500, anchor="n")
+scrollbar = tk.Scrollbar(text_frame)
+scrollbar.pack(side="right", fill="y")
+text = tk.Text(text_frame, yscrollcommand=scrollbar.set)
+text.pack(side="left", fill="both", expand=True)
+scrollbar.config(command=text.yview)
+
+
+if MODE == "Computer":
+    def computer_move():
+        selected_color = greedy_color_selector(graph, color)
+        grid_rebuild(selected_color)
+        text.insert(tk.END, f"Computer selected color: {selected_color}. Remaining moves is {MAX_MOVES}\n")
+        MAX_MOVES -= 1
+        if MAX_MOVES > 0:
+            root.after(1000, computer_move)  # Call again after 1 second
+        else:
+            text.insert(tk.END, "Game Over! Computer has no more moves.\n")
+
+    root.after(1000, computer_move)  # Start the first move after 1 second
+
+elif MODE == "Human":
+    canvas.bind("<ButtonRelease-1>", on_click)
+
+
 root.mainloop()
