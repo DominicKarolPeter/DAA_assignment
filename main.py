@@ -88,7 +88,7 @@ graph, color = grid_generator(SIZE)
 
 
 # TODO
-def grid_update(selectedC: int) -> None:
+def grid_update(selected_color: int) -> None:
     """
     Docstring for grid_update
 
@@ -109,18 +109,18 @@ def grid_update(selectedC: int) -> None:
     startN = 0
     oldC = color[startN]
     
-    if oldC == selectedC:
+    if oldC == selected_color:
         return
     
     q = [startN]
     visited = {startN}
-    color[startN] = selectedC
+    color[startN] = selected_color
 
     while q:
         u = q.pop(0) # 
         for v in graph[u]:
             if v not in visited and color[v] == oldC:
-                color[v] = selectedC
+                color[v] = selected_color
                 visited.add(v)
                 q.append(v)
 
