@@ -135,6 +135,7 @@ def greedy_color_selector(graph, color) -> int:
 root = tk.Tk()
 root.geometry("1300x600")
 root.config(bg="#282A36")
+
 game_frame = tk.Frame(root, bd=1, relief="solid")
 game_frame.place(x=10, rely=0.5, width=550, height=550, anchor="w")
 
@@ -143,35 +144,76 @@ canvas.place(relwidth=1, relheight=1)
 
 cell_size = 550 / SIZE  # pixel size per cell
 
+current_turn = "Human"  # Used only for Alternate mode
 
-def grid_rebuild(selected_color: int):
-    # grid_update mutates `color` directly
+
+# ---------------- MOVE HANDLER (SINGLE SOURCE OF TRUTH) ---------------- #
+
+def apply_move(selected_color: int, source: str):
+    global MAX_MOVES, current_turn
+
+    if MAX_MOVES <= 0:
+        return
+
+    # Ignore same-color selection
+    if selected_color == color[0]:
+        return
+
     grid_update(selected_color)
+    MAX_MOVES -= 1
     draw_grid(color)
 
-    text.insert(tk.END, f"Selected color: {selected_color}. Remaining moves is {MAX_MOVES}\n")
+    text.insert(
+        tk.END,
+        f"{source} selected color {selected_color}. Remaining moves: {MAX_MOVES}\n"
+    )
+    text.see(tk.END)
+
     if MAX_MOVES <= 0:
         text.insert(tk.END, "Game Over! No more moves left.\n")
         canvas.unbind("<ButtonRelease-1>")
+        return
+
+    # Alternate mode: switch turns
+    if MODE == "Alternate":
+        current_turn = "Computer" if current_turn == "Human" else "Human"
+        if current_turn == "Computer":
+            root.after(800, computer_move)
+
+
+# ---------------- HUMAN INPUT ---------------- #
 
 def on_click(event):
-    global MAX_MOVES
+    if MODE == "Computer":
+        return
+
+    if MODE == "Alternate" and current_turn != "Human":
+        return
+
     col = int(event.x // cell_size)
     row = int(event.y // cell_size)
 
-    MAX_MOVES -= 1
-    if 0 <= row < SIZE and 0 <= col < SIZE:  # Ensuring to work only on clicks within the grid
-        node = row * SIZE + col  # row 1, column 5 with a size of 6 would be node 11
-        selected_color = color[node]
-        grid_rebuild(selected_color)
+    if 0 <= row < SIZE and 0 <= col < SIZE:
+        node = row * SIZE + col
+        apply_move(color[node], "Human")
 
+
+# ---------------- COMPUTER MOVE ---------------- #
+
+def computer_move():
+    if MAX_MOVES <= 0:
+        return
+
+    selected_color = greedy_color_selector(graph, color)
+    apply_move(selected_color, "Computer")
+
+
+# ---------------- DRAW GRID ---------------- #
 
 def draw_grid(color):
     canvas.delete("all")
 
     for node in range(SIZE * SIZE):
-        cell_color = COLORS[color[node]]
-
         row = node // SIZE
         col = node % SIZE
 
@@ -182,36 +224,47 @@ def draw_grid(color):
 
         canvas.create_rectangle(
             x0, y0, x1, y1,
-            fill=cell_color,
+            fill=COLORS[color[node]],
             outline=""
         )
+
+
 draw_grid(color)
 
-tk.Label(root, text=f"{MODE} Mode", bg="#282A36", fg="white", font=("Arial", 24, "bold")).place(x=930, y=20, anchor="center")
+
+# ---------------- UI SIDE PANEL ---------------- #
+
+tk.Label(
+    root,
+    text=f"{MODE} Mode",
+    bg="#282A36",
+    fg="white",
+    font=("Arial", 24, "bold")
+).place(x=930, y=20, anchor="center")
+
 text_frame = tk.Frame(root)
 text_frame.place(x=930, y=50, width=700, height=500, anchor="n")
+
 scrollbar = tk.Scrollbar(text_frame)
 scrollbar.pack(side="right", fill="y")
+
 text = tk.Text(text_frame, yscrollcommand=scrollbar.set)
 text.pack(side="left", fill="both", expand=True)
+
 scrollbar.config(command=text.yview)
 
 
-if MODE == "Computer":
-    def computer_move():
-        selected_color = greedy_color_selector(graph, color)
-        grid_rebuild(selected_color)
-        text.insert(tk.END, f"Computer selected color: {selected_color}. Remaining moves is {MAX_MOVES}\n")
-        MAX_MOVES -= 1
-        if MAX_MOVES > 0:
-            root.after(1000, computer_move)  # Call again after 1 second
-        else:
-            text.insert(tk.END, "Game Over! Computer has no more moves.\n")
+# ---------------- MODE INITIALIZATION ---------------- #
 
-    root.after(1000, computer_move)  # Start the first move after 1 second
-
-elif MODE == "Human":
+if MODE == "Human":
     canvas.bind("<ButtonRelease-1>", on_click)
+
+elif MODE == "Computer":
+    root.after(800, computer_move)
+
+elif MODE == "Alternate":
+    canvas.bind("<ButtonRelease-1>", on_click)
+    text.insert(tk.END, "Alternate Mode: Human starts.\n")
 
 
 root.mainloop()
