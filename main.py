@@ -6,6 +6,7 @@
 import tkinter as tk
 import random
 
+
 # CONSTANTS
 COLORS = {
     1: "#FF5555",  # RED
@@ -16,6 +17,47 @@ COLORS = {
     6: "#F1FA8C"   # YELLOW
 }
 SIZE = 15
+MAX_MOVES = 50
+MODE = "Human"  # Options: "Human", "Alternate", "Computer"
+
+###############################################################################
+#---------------------        SETTINGS WINDOW      ----------------------------
+###############################################################################
+
+settings = tk.Tk()
+settings.geometry(f"400x300+{settings.winfo_screenwidth()//2 - 200}+{settings.winfo_screenheight()//2 - 150}")
+settings.config(bg="#282A36")
+settings.overrideredirect(True)
+settings.attributes("-topmost", True)
+tk.Label(settings, text="SETTINGS", bg="#15161D", fg="white", font=("Arial", 16, "bold")).place(relx=0.5, rely=0, anchor="n", relwidth=1, relheight=0.15)
+tk.Label(settings, text="Size of board", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.25, anchor="w")
+tk.Label(settings, text="Maximum Moves", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.45, anchor="w")
+tk.Label(settings, text="Select Mode", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.65, anchor="w")
+
+size_var = tk.IntVar(value=15)
+moves_var = tk.IntVar(value=50)
+mode_var = tk.StringVar(value="Human")
+
+def submit():
+    global SIZE, MAX_MOVES, MODE
+    SIZE = size_var.get()
+    MAX_MOVES = moves_var.get()
+    MODE = mode_var.get()
+    settings.destroy()
+
+size_entry = tk.Spinbox(settings, from_=5, to=30, textvariable=size_var, font=("Arial", 12), width=5)
+size_entry.place(relx=0.7, rely=0.25, anchor="center")
+moves_entry = tk.Spinbox(settings, from_=10, to=100, textvariable=moves_var, font=("Arial", 12), width=5)
+moves_entry.place(relx=0.7, rely=0.45, anchor="center")
+mode_menu = tk.OptionMenu(settings, mode_var, "Human", "Alternate", "Computer")
+mode_menu.config(font=("Arial", 12), width=10)
+mode_menu.place(relx=0.7, rely=0.65, anchor="center")
+
+submit_button = tk.Button(settings, text="START GAME", bg="#50FA7B", fg="black", font=("Arial", 12, "bold"), command=submit)
+submit_button.place(relx=0.5, rely=0.85, anchor="center")
+
+settings.mainloop()
+
 
 # Generates a random graph represented by numbers 1 to 6
 def grid_generator(n: int) -> tuple[dict, list]:
@@ -92,9 +134,9 @@ def greedy_color_selector(graph, color) -> int:
 
 root = tk.Tk()
 root.geometry("1300x600")
-
+root.config(bg="#282A36")
 game_frame = tk.Frame(root, bd=1, relief="solid")
-game_frame.place(relx=0.1, rely=0, width=550, height=550)
+game_frame.place(x=10, rely=0.5, width=550, height=550, anchor="w")
 
 canvas = tk.Canvas(game_frame, highlightthickness=0)
 canvas.place(relwidth=1, relheight=1)
