@@ -84,7 +84,37 @@ def greedy_color_selector(graph, color) -> int:
     Also, don't just look at the immediate neighbors; consider the potential chain reactions that could occur by selecting a particular color.
 
     """
-    pass
+    start_color = color[0]
+    best_color = start_color
+    best_size = -1
+
+    for candidate in range(1, 7):
+        if candidate == start_color:
+            continue
+
+        temp_color = color[:]
+        queue = [0]
+        visited = set([0])
+        temp_color[0] = candidate
+
+        while queue:
+            u = queue.pop(0)
+            for v in graph[u]:
+                if v not in visited and temp_color[v] == start_color:
+                    visited.add(v)
+                    temp_color[v] = candidate
+                    queue.append(v)
+
+        size = len(visited)
+
+        if size > best_size:
+            best_size = size
+            best_color = candidate
+
+    return best_color
+
+
+    
 
 ########################################################################################
 # ------------------------------       GAME WINDOW       -------------------------------
