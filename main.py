@@ -4,7 +4,7 @@ import random
 
 # CONSTANTS
 COLORS = {
-    1: "#   ",  # RED
+    1: "#FF5555",  # RED
     2: "#8BE9FD",  # BLUE
     3: "#50FA7B",  # GREEN
     4: "#BD93F9",  # PURPLE
