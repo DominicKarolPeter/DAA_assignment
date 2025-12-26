@@ -139,14 +139,13 @@ def greedy_color_selector(graph, color, C=6) -> int:
     Also, don't just look at the immediate neighbors; consider the potential chain reactions that could occur by selecting a particular color.
 
     """
-
     n = len(color)
     start_color = color[0]
 
     flooded = [False] * n
     boundary = set()
 
-    # STEP 1: find current flooded region (BFS)
+    # Step 1: Find current flooded region (BFS)
     queue = [0]
     flooded[0] = True
 
@@ -157,28 +156,38 @@ def greedy_color_selector(graph, color, C=6) -> int:
                 flooded[v] = True
                 queue.append(v)
 
-    # STEP 2: build boundary of flooded region
+    # Step 2: Build boundary
     for u in range(n):
         if flooded[u]:
             for v in graph[u]:
                 if not flooded[v]:
                     boundary.add(v)
 
-    # STEP 3: greedy evaluation using boundary
+    # Step 3: Count colors on boundary
     colorCount = [0] * (C + 1)
-
     for v in boundary:
         colorCount[color[v]] += 1
 
-    best_color = start_color
-    best_count = -1
-
+    # Step 4: Create (count, color) pairs
+    colorPairs = []
     for c in range(1, C + 1):
-        if c != start_color and colorCount[c] > best_count:
-            best_count = colorCount[c]
-            best_color = c
+        if c != start_color:
+            colorPairs.append([colorCount[c], c])
 
-    return best_color
+    # Step 5: INSERTION SORT (descending by count)
+    for i in range(1, len(colorPairs)):
+        key = colorPairs[i]
+        j = i - 1
+
+        while j >= 0 and colorPairs[j][0] < key[0]:
+            colorPairs[j + 1] = colorPairs[j]
+            j -= 1
+
+        colorPairs[j + 1] = key
+
+    # Step 6: Return best color
+    return colorPairs[0][1]
+
 
 
 
