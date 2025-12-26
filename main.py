@@ -84,9 +84,9 @@ def greedy_color_selector(graph, color) -> int:
     Also, don't just look at the immediate neighbors; consider the potential chain reactions that could occur by selecting a particular color.
 
     """
+
     start_color = color[0]
-    best_color = start_color
-    best_size = -1
+    results = []  # (flooded_size, candidate_color)
 
     for candidate in range(1, 7):
         if candidate == start_color:
@@ -105,13 +105,20 @@ def greedy_color_selector(graph, color) -> int:
                     temp_color[v] = candidate
                     queue.append(v)
 
-        size = len(visited)
+        results.append((len(visited), candidate))
 
-        if size > best_size:
-            best_size = size
-            best_color = candidate
+    # -------- SELECTION SORT (DESCENDING BY FLOODED SIZE) --------
+    n = len(results)
+    for i in range(n):
+        max_idx = i
+        for j in range(i + 1, n):
+            if results[j][0] > results[max_idx][0]:
+                max_idx = j
+        results[i], results[max_idx] = results[max_idx], results[i]
+    # ------------------------------------------------------------
 
-    return best_color
+    return results[0][1]
+
 
 
     
