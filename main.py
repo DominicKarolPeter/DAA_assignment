@@ -8,14 +8,22 @@ import random
 # CONSTANTS
 COLORS = {
     1: "#FF5555",  # RED
-    2: "#8BE9FD",  # CYAN
+    2: "#8BE9FD",  # BLUE
     3: "#50FA7B",  # GREEN
     4: "#BD93F9",  # PURPLE
     5: "#FF79C6",  # PINK
     6: "#F1FA8C"   # YELLOW
 }
-SIZE = 15
-MAX_MOVES = 50
+COLOR_NAMES = {
+    1: "RED",  # RED
+    2: "BLUE",  # BLUE
+    3: "GREEN",  # GREEN
+    4: "PURPLE",  # PURPLE
+    5: "PINK",  # PINK
+    6: "YELLOW"   # YELLOW
+}
+SIZE = 10
+MAX_MOVES = 25
 MODE = "Human"  # Options: "Human", "Alternate", "Computer"
 
 ###############################################################################
@@ -27,14 +35,14 @@ settings.geometry(f"400x300+{settings.winfo_screenwidth()//2 - 200}+{settings.wi
 settings.config(bg="#282A36")
 settings.overrideredirect(True)
 settings.attributes("-topmost", True)
-tk.Label(settings, text="SETTINGS", bg="#15161D", fg="white", font=("Arial", 16, "bold")).place(relx=0.5, rely=0, anchor="n", relwidth=1, relheight=0.15)
+tk.Label(settings, text="Flood it! - Settings", bg="#15161D", fg="white", font=("Arial", 16, "bold")).place(relx=0.5, rely=0, anchor="n", relwidth=1, relheight=0.15)
 tk.Label(settings, text="Size of board", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.25, anchor="w")
 tk.Label(settings, text="Maximum Moves", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.45, anchor="w")
 tk.Label(settings, text="Select Mode", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.65, anchor="w")
 
-size_var = tk.IntVar(value=15)
-moves_var = tk.IntVar(value=50)
-mode_var = tk.StringVar(value="Human")
+size_var = tk.IntVar(value=SIZE)
+moves_var = tk.IntVar(value=MAX_MOVES)
+mode_var = tk.StringVar(value=MODE)
 
 def submit():
     global SIZE, MAX_MOVES, MODE
@@ -44,16 +52,23 @@ def submit():
     settings.destroy()
 
 size_entry = tk.Spinbox(settings, from_=5, to=30, textvariable=size_var, font=("Arial", 12), width=5)
-size_entry.place(relx=0.7, rely=0.25, anchor="center")
+size_entry.place(relx=0.7, rely=0.25, anchor="center", relwidth=0.3)
 moves_entry = tk.Spinbox(settings, from_=10, to=100, textvariable=moves_var, font=("Arial", 12), width=5)
-moves_entry.place(relx=0.7, rely=0.45, anchor="center")
+moves_entry.place(relx=0.7, rely=0.45, anchor="center", relwidth=0.3)
 mode_menu = tk.OptionMenu(settings, mode_var, "Human", "Alternate", "Computer")
 mode_menu.config(font=("Arial", 12), width=10)
-mode_menu.place(relx=0.7, rely=0.65, anchor="center")
+mode_menu.place(relx=0.7, rely=0.65, anchor="center", relwidth=0.3)
 
-submit_button = tk.Button(settings, text="START GAME", bg="#50FA7B", fg="black", font=("Arial", 12, "bold"), command=submit)
+submit_button = tk.Button(settings, text="START GAME", bg="#96F9AB", fg="black", font=("Arial", 12, "bold"), command=submit,
+                          relief="sunken", bd=0)
 submit_button.place(relx=0.5, rely=0.85, anchor="center")
 
+submit_button.bind("<Enter>", lambda e: submit_button.config(bg="#61BA78"))
+submit_button.bind("<Leave>", lambda e: submit_button.config(bg="#96F9AB"))
+
+icon1 = tk.PhotoImage(file="ingame_icon.png")
+iconlabel = tk.Label(settings, image=icon1, bg="#282A36")
+iconlabel.place(relx=0.1, rely=0.98, anchor="sw")
 settings.mainloop()
 
 
@@ -199,6 +214,7 @@ def greedy_color_selector(graph, color, C=6) -> int:
 
 root = tk.Tk()
 root.geometry("1300x600")
+root.title("Flood It!")
 root.config(bg="#282A36")
 
 game_frame = tk.Frame(root, bd=1, relief="solid")
@@ -229,7 +245,7 @@ def apply_move(selected_color: int, source: str):
 
     text.insert(
         tk.END,
-        f"{source} selected color {selected_color}. Remaining moves: {MAX_MOVES}\n"
+        f"{source} selected color {COLOR_NAMES[selected_color]}. Remaining moves: {MAX_MOVES}\n"
     )
     text.see(tk.END)
 
@@ -324,7 +340,7 @@ tk.Label(
 ).place(x=930, y=20, anchor="center")
 
 text_frame = tk.Frame(root)
-text_frame.place(x=930, y=50, width=700, height=500, anchor="n")
+text_frame.place(x=930, y=70, width=700, height=500, anchor="n")
 
 scrollbar = tk.Scrollbar(text_frame)
 scrollbar.pack(side="right", fill="y")
@@ -347,5 +363,8 @@ elif MODE == "Alternate":
     canvas.bind("<ButtonRelease-1>", on_click)
     text.insert(tk.END, "Alternate Mode: Human starts.\n")
 
+icon2 = tk.PhotoImage(file="ingame_icon.png")
+iconlabel2 = tk.Label(root, image=icon2, bg="#282A36")
+iconlabel2.place(x=700, y=70, anchor="sw")
 
 root.mainloop()
