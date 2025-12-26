@@ -1,13 +1,10 @@
-# TODO
-# APPLY GAME OVER LOGIC SOMEWHERE
-
 import tkinter as tk
 import random
 
 
 # CONSTANTS
 COLORS = {
-    1: "#FF5555",  # RED
+    1: "#   ",  # RED
     2: "#8BE9FD",  # BLUE
     3: "#50FA7B",  # GREEN
     4: "#BD93F9",  # PURPLE
@@ -115,8 +112,6 @@ def grid_update(selected_color: int) -> bool:
         Go to each neighbor (bfs). that is, graph[0]. 
         IFF neighbor color is same as graph's original color, do the same 3 steps for that neighbor.
         Continue this process until all connected nodes with the original color have been changed to the selected_color
-
-    DO NOT DELETE THIS DOC STRING EVEN AFTER COMPLETING THIS FUNCTION  !!!
     """
     startN = 0
     oldC = color[startN]
@@ -143,7 +138,7 @@ def greedy_color_selector(graph, color, C=6) -> int:
 
     :param graph: The current graph state. It is a dictionary representing the adjacency list.
     :param color: The current color of each node. It is a list
-    :return: The color that maximizes the connected region size when selected. TYPE IS INTEGER. ISTG IF YOU RETURN ANYTHING ELSE...
+    :return: The color that maximizes the connected region size when selected. TYPE IS INTEGER.
     
     This function should implement a greedy algorithm to select the next color to maximize the size of the connected region
     starting from the top-left corner. It should analyze the current grid and return the color that would result in the largest
