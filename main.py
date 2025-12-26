@@ -122,7 +122,7 @@ def grid_update(selected_color: int) -> bool:
                 q.append(v)
     return True
 
-def greedy_color_selector(graph, color) -> int:
+def greedy_color_selector(graph, color, C=6) -> int:
     """
     Docstring for greedy_color_selector
 
@@ -140,43 +140,63 @@ def greedy_color_selector(graph, color) -> int:
 
     """
 
-    start_color = color[0]
-    results = []  # (flooded_size, candidate_color)
-
-    for candidate in range(1, 7):
-        if candidate == start_color:
-            continue
-
-        temp_color = color[:]
-        queue = [0]
-        visited = set([0])
-        temp_color[0] = candidate
-
-        while queue:
-            u = queue.pop(0)
-            for v in graph[u]:
-                if v not in visited and temp_color[v] == start_color:
-                    visited.add(v)
-                    temp_color[v] = candidate
-                    queue.append(v)
-
-        results.append((len(visited), candidate))
-
-    # -------- SELECTION SORT (DESCENDING BY FLOODED SIZE) --------
-    n = len(results)
-    for i in range(n):
-        max_idx = i
-        for j in range(i + 1, n):
-            if results[j][0] > results[max_idx][0]:
-                max_idx = j
-        results[i], results[max_idx] = results[max_idx], results[i]
-    # ------------------------------------------------------------
-
-    return results[0][1]
-
-
-
     
+    n = len(color)
+
+    flooded = [False] * n
+    boundary = set()
+
+    flooded[0] = True
+    currentColor = color[0]
+
+    for u in graph[0]:
+        if not flooded[u]:
+            boundary.add(u)
+
+    solution_seq = []
+    moves = 0
+
+    while boundary:
+        colorCount = [0] * (C + 1)
+
+        for v in boundary:
+            colorCount[color[v]] += 1
+
+        colorPairs = []
+        for c in range(1, C + 1):
+            colorPairs.append([colorCount[c], c])
+
+        for i in range(1, C):
+            key = colorPairs[i]
+            j = i - 1
+            while j >= 0 and colorPairs[j][0] < key[0]:
+                colorPairs[j + 1] = colorPairs[j]
+                j -= 1
+            colorPairs[j + 1] = key
+
+        chosenColor = colorPairs[0][1]
+
+        solution_seq.append(chosenColor)
+        moves += 1
+
+        newFlooded = []
+
+        for v in list(boundary):
+            if color[v] == chosenColor:
+                flooded[v] = True
+                newFlooded.append(v)
+
+        for v in newFlooded:
+            boundary.remove(v)
+            for u in graph[v]:
+                if not flooded[u] and u not in boundary:
+                    boundary.add(u)
+
+        currentColor = chosenColor
+
+    return moves, solution_seq
+
+
 
 ########################################################################################
 # ------------------------------       GAME WINDOW       -------------------------------
