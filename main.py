@@ -194,11 +194,11 @@ def apply_move(selected_color: int, source: str):
     global MAX_MOVES, current_turn
 
     if MAX_MOVES <= 0:
-        return
+        return False
 
     # Ignore same-color selection
     if selected_color == color[0]:
-        return
+        return False
 
     change = grid_update(selected_color)
     if change:
@@ -219,19 +219,21 @@ def apply_move(selected_color: int, source: str):
     if gameover:
         text.insert(tk.END, "The board has been completed!\n\n               YOU WIN!\n")
         canvas.unbind("<ButtonRelease-1>")
+        return False
 
 
 
     if MAX_MOVES <= 0:
         text.insert(tk.END, "Game Over! No more moves left.\n")
         canvas.unbind("<ButtonRelease-1>")
-        return
+        return False
 
     # Alternate mode: switch turns
     if MODE == "Alternate":
         current_turn = "Computer" if current_turn == "Human" else "Human"
         if current_turn == "Computer":
             root.after(800, computer_move)
+    return True
 
 
 # ---------------- HUMAN INPUT ---------------- #
@@ -259,7 +261,10 @@ def computer_move():
         return
 
     selected_color = greedy_color_selector(graph, color)
-    apply_move(selected_color, "Computer")
+    temp = apply_move(selected_color, "Computer")
+
+    if MODE == "Computer" and temp:
+        root.after(1000, computer_move)
 
 
 # ---------------- DRAW GRID ---------------- #
@@ -314,7 +319,7 @@ if MODE == "Human":
     canvas.bind("<ButtonRelease-1>", on_click)
 
 elif MODE == "Computer":
-    root.after(800, computer_move)
+    root.after(1000, computer_move)
 
 elif MODE == "Alternate":
     canvas.bind("<ButtonRelease-1>", on_click)
