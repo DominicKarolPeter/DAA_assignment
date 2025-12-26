@@ -1,7 +1,5 @@
-# FLOOD GAME
-
-# Ritesh and Rupesh look at the TODOs and complete the functions as per the docstrings. There should be NO CHANGES to the function signatures or docstrings.
-# The parameters and return types should remain the same. They are mentioned clearly in the docstrings.
+# TODO
+# APPLY GAME OVER LOGIC SOMEWHERE
 
 import tkinter as tk
 import random
@@ -87,15 +85,14 @@ def grid_generator(n: int) -> tuple[dict, list]:
 graph, color = grid_generator(SIZE)
 
 
-# TODO
-def grid_update(selected_color: int) -> None:
+def grid_update(selected_color: int) -> bool:
     """
     Docstring for grid_update
 
     :param selected_color: The next color selected by the player or computer.
     This function should update the grid based on the selected color. It should change the color of the connected region starting from the top-left corner
     to the new color and expand the connected region accordingly. It should return the updated grid. An example is shown below to illustrate the expected behavior:
-    :return: No return value is expected from this function.
+    :return: If the grid was updated successfully, return True. Else, return False.
 
     Description of expected behavior:
         Start from the top-left cell of the grid. That is, node 0. 
@@ -110,19 +107,20 @@ def grid_update(selected_color: int) -> None:
     oldC = color[startN]
     
     if oldC == selected_color:
-        return
+        return False
     
     q = [startN]
     visited = {startN}
     color[startN] = selected_color
 
     while q:
-        u = q.pop(0) # 
+        u = q.pop(0)
         for v in graph[u]:
             if v not in visited and color[v] == oldC:
                 color[v] = selected_color
                 visited.add(v)
                 q.append(v)
+    return True
 
 def greedy_color_selector(graph, color) -> int:
     """
@@ -157,12 +155,10 @@ game_frame.place(x=10, rely=0.5, width=550, height=550, anchor="w")
 canvas = tk.Canvas(game_frame, highlightthickness=0)
 canvas.place(relwidth=1, relheight=1)
 
-cell_size = 550 / SIZE  # pixel size per cell
+cell_size = 550 / SIZE
 
-current_turn = "Human"  # Used only for Alternate mode
+current_turn = "Human"
 
-
-# ---------------- MOVE HANDLER (SINGLE SOURCE OF TRUTH) ---------------- #
 
 def apply_move(selected_color: int, source: str):
     global MAX_MOVES, current_turn
@@ -174,8 +170,9 @@ def apply_move(selected_color: int, source: str):
     if selected_color == color[0]:
         return
 
-    grid_update(selected_color)
-    MAX_MOVES -= 1
+    change = grid_update(selected_color)
+    if change:
+        MAX_MOVES -= 1
     draw_grid(color)
 
     text.insert(
@@ -183,6 +180,17 @@ def apply_move(selected_color: int, source: str):
         f"{source} selected color {selected_color}. Remaining moves: {MAX_MOVES}\n"
     )
     text.see(tk.END)
+
+    # GAME OVER LOGIC
+    gameover = True
+    for i in color:
+        if i != color[0]:
+            gameover = False
+    if gameover:
+        text.insert(tk.END, "The board has been completed!\n\n               YOU WIN!\n")
+        canvas.unbind("<ButtonRelease-1>")
+
+
 
     if MAX_MOVES <= 0:
         text.insert(tk.END, "Game Over! No more moves left.\n")
@@ -211,6 +219,7 @@ def on_click(event):
     if 0 <= row < SIZE and 0 <= col < SIZE:
         node = row * SIZE + col
         apply_move(color[node], "Human")
+    
 
 
 # ---------------- COMPUTER MOVE ---------------- #
