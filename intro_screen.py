@@ -152,3 +152,9 @@ def show_intro_screen(root):
     c.bind("<ButtonRelease-1>", on_canvas_click)
     intro_window.wait_window()
     return result
+
+if __name__ == "__main__":
+    root = Tk()
+    root.withdraw()  # Hide the main window while the intro screen is active
+    result = show_intro_screen(root)
+    print(result)
