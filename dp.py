@@ -36,8 +36,8 @@ def get_flooded_size(graph, colors):
     start_node = 0
     target_color = colors[start_node]
 
-    queue = deque([start_node])
-    visited = set([start_node])
+    queue = [start_node]
+    visited = {start_node}
 
     while queue:
         node = queue.popleft()
@@ -52,8 +52,8 @@ def boundary_colors(graph,colors):
     start_node = 0
     base_color = colors[start_node]
 
-    queue = deque([start_node])
-    visited = set([start_node])
+    queue = [start_node]
+    visited = {start_node}
 
     while queue:
         node = queue.popleft()
