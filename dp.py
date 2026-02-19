@@ -1,5 +1,6 @@
 #   DP Logic:
 memo = {}
+SEARCH_DEPTH = 4 # DP Lookahead depth
 
 def get_flooded_size_sim(graph, current_colors):
     """Helper: Counts size of flooded region for a simulation state."""
@@ -83,7 +84,7 @@ def dp_solve(current_colors, depth, graph):
     for move in boundary_colors:
         next_state_colors = simulate_move(graph, current_colors, move)
         
-        score, _ = dp_solve(next_state_colors, depth - 1)
+        score, _ = dp_solve(next_state_colors, depth - 1, graph)
         
         if score > best_score:
             best_score = score
@@ -103,7 +104,7 @@ def dp_color_selector(graph, color) -> int:
     # Run DP
     # Note: graph is global or passed, but dp_solve needs it. 
     # Since graph is constant structure, we access it globally or pass it.
-    score, move = dp_solve(color, SEARCH_DEPTH)
+    score, move = dp_solve(color, SEARCH_DEPTH, graph)
     
     # Fallback if None returned (rare edge case if solved)
     if move is None:

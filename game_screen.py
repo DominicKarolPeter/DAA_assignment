@@ -2,14 +2,17 @@ from tkinter import *
 from graph_controller import grid_update
 from greedy import greedy_color_selector
 from div_n_conq import div_n_conq
+from dp import dp_color_selector
 
-def computer_color_selector(MODE):
-    if MODE == "greedy":
-        return greedy_color_selector
-    elif MODE == "divide_conquer":
-        return div_n_conq
-    else:
-        return greedy_color_selector # Default to greedy if mode is unrecognized
+COMPUTER_DELAY = 2000
+
+# def computer_color_selector(MODE):
+#     if MODE == "greedy":
+#         return greedy_color_selector
+#     elif MODE == "divide_conquer":
+#         return div_n_conq
+#     else:
+#         return greedy_color_selector # Default to greedy if mode is unrecognized
 
 COLOR_NAMES = {
     1: "RED",  # RED
@@ -130,7 +133,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
     # ---------------- HUMAN INPUT ---------------- #
 
     def on_click(event):
-        if MODE == "greedy" or MODE == "divide_conquer" or MODE == "dp":
+        if MODE in ("greedy", "divide_conquer", "dp"):
             return
 
         if MODE == "alternate" and current_turn != "Human":
@@ -154,6 +157,10 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         if MODE == "greedy" or MODE == "alternate" :
             selected_color = greedy_color_selector(graph, color)
             temp = apply_move(selected_color, "Computer")
+        
+        elif MODE == "dp":
+            selected_color = dp_color_selector(graph, color)
+            temp = apply_move(selected_color, "Computer")
 
         elif MODE == "divide_conquer":
             temp = False
@@ -167,7 +174,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
             return
 
         if MODE in ("greedy", "divide_conquer", "dp") and temp:
-            game_window.after(1000, computer_move)
+            game_window.after(COMPUTER_DELAY, computer_move)
 
 
     # ---------------- DRAW GRID ---------------- #
@@ -222,7 +229,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         canvas.bind("<ButtonRelease-1>", on_click)
 
     elif MODE in ("greedy", "divide_conquer", "dp"):
-        game_window.after(1000, computer_move)
+        game_window.after(COMPUTER_DELAY, computer_move)
 
     elif MODE == "alternate":
         canvas.bind("<ButtonRelease-1>", on_click)
