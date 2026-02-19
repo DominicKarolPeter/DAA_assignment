@@ -35,6 +35,7 @@ gameover = False
 
 def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
     global gameover
+    gameover = False
     """
     Docstring for show_game_screen
 
@@ -97,6 +98,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         text.see(END)
 
         if MOVES <= 0:
+            gameover = True
             text.insert(END, "Game Over! No more moves left.\n")
             canvas.unbind("<ButtonRelease-1>")
             return False
