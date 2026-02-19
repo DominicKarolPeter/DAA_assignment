@@ -13,7 +13,7 @@ for i in COLORS:
     priority_list[i] = 0
 
 
-def dnc_pick_color(color, new=True, priority_list= priority_list):
+def dnc_pick_color(color, new=True, priority_list=priority_list):
     def get_max(priority_list):
         # max = list(priority_list.keys())[0]
         max = next(iter(priority_list))
@@ -48,31 +48,23 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
     This function should create and display the game screen using Tkinter. It should show the grid based on the current graph and color state, display the number of moves left, and provide an interface for the player to select colors (if in human mode) or show the computer's move (if in computer mode). The game screen should update dynamically based on user interactions or computer decisions.
     """
     game_window = Toplevel(root)
-    game_window.geometry("1300x600")
+    game_window.geometry("1300x650")
     game_window.title("Flood It!")
     game_window.config(bg="#000044")
     game_frame = Frame(game_window, bd=1, relief="solid")
-    game_frame.place(x=10, rely=0.5, width=550, height=550, anchor="w")
+    game_frame.place(relx=0.01, rely=0.95, width=550, height=550, anchor="sw")
 
     canvas = Canvas(game_frame, highlightthickness=0)
     canvas.place(relwidth=1, relheight=1)
 
     cell_size = 550 / SIZE
 
-    current_turn = "Human"
+    current_turn = "You"
 
 
     def apply_move(selected_color: int, source: str):
         nonlocal MOVES, current_turn
         global gameover
-
-        # GAME OVER LOGIC
-        gameover = all(c == color[0] for c in color)
-        if gameover:
-            text.insert(END, "The board has been completed!\n\n               YOU WIN!\n")
-            canvas.unbind("<ButtonRelease-1>")
-            return False
-
 
         if MOVES <= 0:
             return False
@@ -82,32 +74,41 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
             return False
 
         change = grid_update(selected_color, color, graph)
+
         if change == 1:
             MOVES -= 1
+            text.insert(END, f"{source}", "blue")
+            text.insert(END, f" selected color {COLOR_NAMES[selected_color]}. ")
+            text.insert(END, f"Remaining moves: {MOVES}\n", "yellow")
+            text.see(END)
+
         draw_grid(color)
 
+        # GAME OVER LOGIC
+        gameover = all(c == color[0] for c in color)
+        if gameover:
+            text.insert(END, "The board has been completed!\n\n               YOU WIN!\n", "green")
+            canvas.unbind("<ButtonRelease-1>")
+            return False
+
         if change == -1: # Greedy failed- no expansion
-            text.insert(END, f"{source} selected color {COLOR_NAMES[selected_color]}, but it did not expand the region. Remaining moves: {MOVES}\n")
+            text.insert(END, f"{source} ", "blue")
+            text.insert(END, f"selected color {COLOR_NAMES[selected_color]}, but it did not expand the region. Remaining moves: {MOVES}\n", "grey")
             text.see(END)
             return False
 
-        text.insert(
-            END,
-            f"{source} selected color {COLOR_NAMES[selected_color]}. Remaining moves: {MOVES}\n"
-        )
-        text.see(END)
-
         if MOVES <= 0:
             gameover = True
-            text.insert(END, "Game Over! No more moves left.\n")
+            text.insert(END, "Game Over! No more moves left.\n", "red")
             canvas.unbind("<ButtonRelease-1>")
             return False
 
         # Alternate mode: switch turns
         if MODE == "alternate":
-            current_turn = "Computer" if current_turn == "Human" else "Human"
+            current_turn = "Computer" if current_turn == "You" else "You"
             if current_turn == "Computer":
                 game_window.after(800, computer_move)
+
         return True
 
 
@@ -117,7 +118,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         if MODE in ("greedy", "divide_conquer", "dp"):
             return
 
-        if MODE == "alternate" and current_turn != "Human":
+        if MODE == "alternate" and current_turn != "You":
             return
 
         col = int(event.x // cell_size)
@@ -125,7 +126,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
         if 0 <= row < SIZE and 0 <= col < SIZE:
             node = row * SIZE + col
-            apply_move(color[node], "Human")
+            apply_move(color[node], "You")
         
 
 
@@ -187,20 +188,25 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
     Label(
         game_window,
-        text=f"{MODE} Mode",
-        bg="#282A36",
+        text=f"{MODE.title()} Mode",
+        bg="#000044",
         fg="white",
         font=("Arial", 24, "bold")
-    ).place(x=930, y=20, anchor="center")
+    ).place(relx=0.5, y=0.05, anchor="n")
 
     text_frame = Frame(game_window)
-    text_frame.place(x=930, y=70, width=700, height=500, anchor="n")
+    text_frame.place(relx=0.99, rely=0.95, width=700, height=550, anchor="se")
 
     scrollbar = Scrollbar(text_frame)
     scrollbar.pack(side="right", fill="y")
 
-    text = Text(text_frame, yscrollcommand=scrollbar.set)
+    text = Text(text_frame, yscrollcommand=scrollbar.set, bg="#00003a", fg="#ffffff", font="calibri 13")
     text.pack(side="left", fill="both", expand=True)
+    text.tag_config("green", foreground="#39ff39", font=("calibri", 16))
+    text.tag_config("red", foreground="#f58a8a", font=("calibri", 16))
+    text.tag_config("blue", foreground="#47ecfe")
+    text.tag_config("yellow", foreground="#f8f671")
+    text.tag_config("grey", foreground="#929292")
 
     scrollbar.config(command=text.yview)
 
@@ -215,12 +221,6 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
     elif MODE == "alternate":
         canvas.bind("<ButtonRelease-1>", on_click)
-        text.insert(END, "Alternate Mode: Human starts.\n")
-
-    icon2 = PhotoImage(file="ingame_icon.png")
-    iconlabel2 = Label(game_window, image=icon2, bg="#282A36")
-    iconlabel2.image = icon2
-    iconlabel2.place(x=700, y=70, anchor="sw")
-
+        text.insert(END, "Alternate Mode: You start.\n")
 
     game_window.wait_window()

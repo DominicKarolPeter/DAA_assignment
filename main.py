@@ -1,11 +1,18 @@
 import tkinter as tk
+import pygame
 
 from game_screen import show_game_screen
 from intro_screen import show_intro_screen
 from graph_controller import grid_generator
+from constants import VOLUME
 
 root = tk.Tk()
-root.withdraw()  # Hide the main window while the intro screen is active
+root.withdraw()
+
+pygame.mixer.init()
+pygame.mixer.music.load("bgm.mp3")
+pygame.mixer.music.set_volume(VOLUME / 100)
+pygame.mixer.music.play(-1)
 
 while True:
     result = show_intro_screen(root)
