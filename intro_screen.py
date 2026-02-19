@@ -18,7 +18,7 @@ def show_intro_screen(root):
     intro_window = Toplevel(root)
     intro_window.geometry(f"800x650+{intro_window.winfo_screenwidth()//2 - 400}+{intro_window.winfo_screenheight()//2 - 325}")
     intro_window.attributes("-topmost", True)
-    intro_window.attributes("-transparentcolor", "#00ff00")
+    #intro_window.attributes("-transparentcolor", "#00ff00")
     intro_window.overrideredirect(1)
 
     ###############################
