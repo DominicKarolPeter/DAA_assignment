@@ -3,45 +3,53 @@ from constants import SEARCH_DEPTH
 memo = {}
 
 def get_flooded_size_sim(graph, current_colors):
-    """Helper: Counts size of flooded region for a simulation state."""
-    target_c = current_colors[0]
-    count = 0
-    visited = {0}
-    q = [0]
-    while q:
-        u = q.pop(0)
-        count += 1
-        for v in graph[u]:
-            if v not in visited and current_colors[v] == target_c:
-                visited.add(v)
-                q.append(v)
-    return count
-
-def simulate_move(graph, current_colors, move_color):
-    """
-    Returns a NEW list of colors after applying a hypothetical move.
-    Does NOT change the global 'color' list.
-    """
-    new_colors = list(current_colors)
     start_node = 0
-    old_c = new_colors[start_node]
-    
-    if old_c == move_color:
-        return new_colors
+    target_color = current_colors[start_node]
 
-    # BFS to change color
-    q = [start_node]
+    queue = [start_node]
+    visited = {start_node}
+
+    while queue:
+        node = queue.pop(0)
+
+        for neighbour in graph[node]:
+            if neighbour not in visited and current_colors[neighbour] == target_color:
+                visited.add(neighbour)
+                queue.append(neighbour)
+
+    return len(visited)
+
+
+def simulate_move(graph, current_color, move_color):
+    """
+    State Transition Function (S → S′)
+    Creates a new hypothetical board after applying a move.
+    Does NOT modify the original board.
+    """
+
+    new_colors = list(current_color)
+
+    start_node = 0
+    old_color = new_colors[start_node]
+
+    if old_color == move_color:
+        return new_colors
+    
+    # BFS
+    queue = [start_node]
     visited = {start_node}
     new_colors[start_node] = move_color
-    
-    while q:
-        u = q.pop(0)
+
+    while queue:
+        u = queue.pop(0)
         for v in graph[u]:
-            if v not in visited and new_colors[v] == old_c:
+            if v not in visited and new_colors[v] == old_color:
                 visited.add(v)
                 new_colors[v] = move_color
-                q.append(v)
+                queue.append(v)
+
     return new_colors
+
 
 def dp_solve(current_colors, depth, graph):
     """
