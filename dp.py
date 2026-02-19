@@ -1,6 +1,6 @@
 #   DP Logic:
 memo = {}
-SEARCH_DEPTH = 4 # DP Lookahead depth
+SEARCH_DEPTH = 4 # Anything above 4 may cause lag
 
 def get_flooded_size_sim(graph, current_colors):
     """Helper: Counts size of flooded region for a simulation state."""
@@ -99,14 +99,10 @@ def dp_color_selector(graph, color) -> int:
     Main entry point for the computer player.
     """
     global memo
-    memo = {} # Clear memory for new turn to save RAM
-    
-    # Run DP
-    # Note: graph is global or passed, but dp_solve needs it. 
-    # Since graph is constant structure, we access it globally or pass it.
+    memo = {} 
     score, move = dp_solve(color, SEARCH_DEPTH, graph)
     
-    # Fallback if None returned (rare edge case if solved)
+
     if move is None:
         return 1 
         
