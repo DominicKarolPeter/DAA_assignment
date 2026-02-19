@@ -13,4 +13,4 @@ def div_n_conq(current) -> int:
 
     for k, v in second.items():
         combined[k] = combined.get(k, 0) + v
-    return combined        
+    return combined

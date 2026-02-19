@@ -1,6 +1,6 @@
+from constants import SEARCH_DEPTH
 #   DP Logic:
 memo = {}
-SEARCH_DEPTH = 4 # Anything above 4 may cause lag
 
 def get_flooded_size_sim(graph, current_colors):
     """Helper: Counts size of flooded region for a simulation state."""

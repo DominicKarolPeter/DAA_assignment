@@ -4,32 +4,7 @@ from greedy import greedy_color_selector
 from div_n_conq import div_n_conq
 from dp import dp_color_selector
 
-COMPUTER_DELAY = 2000
-
-# def computer_color_selector(MODE):
-#     if MODE == "greedy":
-#         return greedy_color_selector
-#     elif MODE == "divide_conquer":
-#         return div_n_conq
-#     else:
-#         return greedy_color_selector # Default to greedy if mode is unrecognized
-
-COLOR_NAMES = {
-    1: "RED",  # RED
-    2: "BLUE",  # BLUE
-    3: "GREEN",  # GREEN
-    4: "PURPLE",  # PURPLE
-    5: "PINK",  # PINK
-    6: "YELLOW"   # YELLOW
-}
-COLORS = {
-    1: "#FF5555",  # RED
-    2: "#8BE9FD",  # BLUE
-    3: "#50FA7B",  # GREEN
-    4: "#BD93F9",  # PURPLE
-    5: "#FF79C6",  # PINK
-    6: "#F1FA8C"   # YELLOW
-}
+from constants import COMPUTER_DELAY, COLOR_NAMES, COLORS
 
 # FOR DNC
 
@@ -49,13 +24,17 @@ def dnc_pick_color(color, new=True, priority_list= priority_list):
         return max
 
     if new:
-        priority_list = div_n_conq(color)
+        # priority_list = div_n_conq(color)
+        priority_list.clear()
+        priority_list.update(div_n_conq(color))
     return get_max(priority_list)
 
 
 
+gameover = False
 
 def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
+    global gameover
     """
     Docstring for show_game_screen
 
@@ -84,6 +63,15 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
     def apply_move(selected_color: int, source: str):
         nonlocal MOVES, current_turn
+        global gameover
+
+        # GAME OVER LOGIC
+        gameover = all(c == color[0] for c in color)
+        if gameover:
+            text.insert(END, "The board has been completed!\n\n               YOU WIN!\n")
+            canvas.unbind("<ButtonRelease-1>")
+            return False
+
 
         if MOVES <= 0:
             return False
@@ -107,15 +95,6 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
             f"{source} selected color {COLOR_NAMES[selected_color]}. Remaining moves: {MOVES}\n"
         )
         text.see(END)
-
-        # GAME OVER LOGIC
-        gameover = all(c == color[0] for c in color)
-        if gameover:
-            text.insert(END, "The board has been completed!\n\n               YOU WIN!\n")
-            canvas.unbind("<ButtonRelease-1>")
-            return False
-
-
 
         if MOVES <= 0:
             text.insert(END, "Game Over! No more moves left.\n")
@@ -164,12 +143,13 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
         elif MODE == "divide_conquer":
             temp = False
-            while not temp:
-                selected_color = dnc_pick_color(color)
+            first_run = True
+            while not temp and not gameover:
+                selected_color = dnc_pick_color(color, new=first_run)
+                # print(f"New List: {first_run}\nSelected color: {selected_color}\nPrio List: {priority_list}\n\n")
+                first_run = False
                 temp = apply_move(selected_color, "Computer")
-        elif MODE == "dp":
-            # selected_color = dp_pick_color(color)
-            return
+
         else:
             return
 

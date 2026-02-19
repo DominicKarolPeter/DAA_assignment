@@ -7,10 +7,6 @@ from graph_controller import grid_generator
 root = tk.Tk()
 root.withdraw()  # Hide the main window while the intro screen is active
 
-SIZE = 10
-MOVES = 25
-MODE = "human"
-
 while True:
     result = show_intro_screen(root)
     if result["action"] == 0:
