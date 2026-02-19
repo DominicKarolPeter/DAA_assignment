@@ -49,7 +49,22 @@ def simulate_move(graph, current_color, move_color):
                 queue.append(v)
 
     return new_colors
+def boundary_options(graph,current_colors):
+    start_color=current_colors[0]
+    boundaries=set()
+    queue=[0]
+    visited={0}
 
+    while queue:
+        node=queue.pop(0)
+        for neighbour in graph[node]:
+            if neighbour not in visited:
+                if current_colors[neighbour]==start_color:
+                    visited.add(neighbour)
+                    queue.append(neighbour)
+                else:
+                    boundaries.add(current_colors[neighbour])
+    return boundaries
 
 def dp_solve(current_colors, depth, graph):
     """
