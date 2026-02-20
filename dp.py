@@ -50,55 +50,53 @@ def simulate_move(graph, current_color, move_color):
 
     return new_colors
 
+def boundary_options(graph,current_colors):
+    start_color=current_colors[0]
+    boundaries=set()
+    queue=[0]
+    visited={0}
+
+    while queue:
+        node=queue.pop(0)
+        for neighbour in graph[node]:
+            if neighbour not in visited:
+                if current_colors[neighbour]==start_color:
+                    visited.add(neighbour)
+                    queue.append(neighbour)
+                else:
+                    boundaries.add(current_colors[neighbour])
+    return boundaries
 
 def dp_solve(current_colors, depth, graph):
-    """
-    Recursive DP Function with Memoization.
-    Returns: (Best Score, Best First Move)
-    """
-    # check whether already present
     state_key = (tuple(current_colors), depth)
+
+    # 1. check memory
     if state_key in memo:
         return memo[state_key]
     
-    # 1.Base case
+    # 2. Base case
     if depth == 0:
         return (get_flooded_size_sim(graph, current_colors), None)
     
-    # valid moves
-    start_c = current_colors[0]
-    boundary_colors = set()
-    visited = {0}
-    q = [0]
+    #3. valid moves
+    options=boundary_options(graph,current_colors)
     
-    # Traverse current flood to find neighbors
-    while q:
-        u = q.pop(0)
-        for v in graph[u]:
-            if v not in visited:
-                if current_colors[v] == start_c:
-                    visited.add(v)
-                    q.append(v)
-                else:
-                    boundary_colors.add(current_colors[v])
-    
-    if not boundary_colors: # Already solved or no moves- edge case
+    if not options: # Already solved or no moves- edge case
         return (9999, None)
 
-    # 2.Recursive step
+    #4.Recursive step
     best_score = -1
-    best_move = list(boundary_colors)[0]
+    best_move = None
 
-    for move in boundary_colors:
-        next_state_colors = simulate_move(graph, current_colors, move)
-        
+    for color_choice in options:
+        next_state_colors = simulate_move(graph, current_colors, color_choice)
         score, _ = dp_solve(next_state_colors, depth - 1, graph)
         
         if score > best_score:
             best_score = score
-            best_move = move
+            best_move = color_choice
             
-    # updating memo
+    # 5. updating memo
     memo[state_key] = (best_score, best_move)
     return (best_score, best_move)
 
