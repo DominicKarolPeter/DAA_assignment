@@ -10,9 +10,15 @@ root = tk.Tk()
 root.withdraw()
 
 pygame.mixer.init()
-pygame.mixer.music.load("bgm.mp3")
+pygame.mixer.music.load("bgm2.mp3")
 pygame.mixer.music.set_volume(VOLUME / 100)
 pygame.mixer.music.play(-1)
+
+win_sound = pygame.mixer.Sound("hooray.mp3")
+win_sound.set_volume(1.0)
+lose_sound = pygame.mixer.Sound("aww.mp3")
+lose_sound.set_volume(1.0)
+
 
 while True:
     result = show_intro_screen(root)
@@ -26,6 +32,6 @@ while True:
     
     graph, color = grid_generator(SIZE)
     
-    show_game_screen(root, graph, color, MOVES, MODE, SIZE)
+    show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_sound)
 
 root.mainloop()

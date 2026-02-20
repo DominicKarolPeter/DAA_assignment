@@ -1,10 +1,11 @@
 from tkinter import *
+import pygame as pg
+
 from graph_controller import grid_update
 from greedy import greedy_color_selector
 from div_n_conq import div_n_conq
 from dp import dp_color_selector
-
-from constants import COMPUTER_DELAY, COLOR_NAMES, COLORS
+from constants import COMPUTER_DELAY, COLOR_NAMES, COLORS, VOLUME
 
 # FOR DNC
 
@@ -33,7 +34,7 @@ def dnc_pick_color(color, new=True, priority_list=priority_list):
 
 gameover = False
 
-def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
+def show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_sound):
     global gameover
     gameover = False
     """
@@ -66,8 +67,8 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         nonlocal MOVES, current_turn
         global gameover
 
-        if MOVES <= 0:
-            return False
+        # if MOVES <= 0:
+        #     return False
 
         # Ignore same-color selection
         if selected_color == color[0]:
@@ -87,6 +88,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
         # GAME OVER LOGIC
         gameover = all(c == color[0] for c in color)
         if gameover:
+            win_sound.play()
             text.insert(END, "The board has been completed!\n\n               YOU WIN!\n", "green")
             canvas.unbind("<ButtonRelease-1>")
             return False
@@ -99,6 +101,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
         if MOVES <= 0:
             gameover = True
+            lose_sound.play()
             text.insert(END, "Game Over! No more moves left.\n", "red")
             canvas.unbind("<ButtonRelease-1>")
             return False
@@ -183,8 +186,6 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE):
 
     draw_grid(color)
 
-
-    # ---------------- UI SIDE PANEL ---------------- #
 
     Label(
         game_window,

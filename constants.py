@@ -1,4 +1,4 @@
-COMPUTER_DELAY = 100
+COMPUTER_DELAY = 500
 
 COLOR_NAMES = {
     1: "RED",  # RED
@@ -23,4 +23,4 @@ SEARCH_DEPTH = 4 # Anything above 4 may cause lag
 
 
 ## MUSIC!
-VOLUME = 50
+VOLUME = 40
