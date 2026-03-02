@@ -1,0 +1,402 @@
+import tkinter as tk
+import random
+
+
+# CONSTANTS
+COLORS = {
+    1: "#FF5555",  # RED
+    2: "#8BE9FD",  # BLUE
+    3: "#50FA7B",  # GREEN
+    4: "#BD93F9",  # PURPLE
+    5: "#FF79C6",  # PINK
+    6: "#F1FA8C"   # YELLOW
+}
+COLOR_NAMES = {
+    1: "RED",  # RED
+    2: "BLUE",  # BLUE
+    3: "GREEN",  # GREEN
+    4: "PURPLE",  # PURPLE
+    5: "PINK",  # PINK
+    6: "YELLOW"   # YELLOW
+}
+SIZE = 10
+MAX_MOVES = 25
+MODE = "Human"  # Options: "Human", "Alternate", "Computer"
+
+###############################################################################
+#---------------------        SETTINGS WINDOW      ----------------------------
+###############################################################################
+
+settings = tk.Tk()
+settings.geometry(f"400x300+{settings.winfo_screenwidth()//2 - 200}+{settings.winfo_screenheight()//2 - 150}")
+settings.config(bg="#282A36")
+settings.overrideredirect(True)
+settings.attributes("-topmost", True)
+tk.Label(settings, text="Flood it! - Settings", bg="#15161D", fg="white", font=("Arial", 16, "bold")).place(relx=0.5, rely=0, anchor="n", relwidth=1, relheight=0.15)
+tk.Label(settings, text="Size of board", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.25, anchor="w")
+tk.Label(settings, text="Maximum Moves", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.45, anchor="w")
+tk.Label(settings, text="Select Mode", bg="#282A36", fg="white", font=("Arial", 12)).place(relx=0.1, rely=0.65, anchor="w")
+
+size_var = tk.IntVar(value=SIZE)
+moves_var = tk.IntVar(value=MAX_MOVES)
+mode_var = tk.StringVar(value=MODE)
+
+def submit():
+    global SIZE, MAX_MOVES, MODE
+    SIZE = size_var.get()
+    MAX_MOVES = moves_var.get()
+    MODE = mode_var.get()
+    settings.destroy()
+
+size_entry = tk.Spinbox(settings, from_=5, to=30, textvariable=size_var, font=("Arial", 12), width=5)
+size_entry.place(relx=0.7, rely=0.25, anchor="center", relwidth=0.3)
+moves_entry = tk.Spinbox(settings, from_=10, to=100, textvariable=moves_var, font=("Arial", 12), width=5)
+moves_entry.place(relx=0.7, rely=0.45, anchor="center", relwidth=0.3)
+mode_menu = tk.OptionMenu(settings, mode_var, "Human", "Alternate", "Computer")
+mode_menu.config(font=("Arial", 12), width=10)
+mode_menu.place(relx=0.7, rely=0.65, anchor="center", relwidth=0.3)
+
+submit_button = tk.Button(settings, text="START GAME", bg="#96F9AB", fg="black", font=("Arial", 12, "bold"), command=submit,
+                          relief="sunken", bd=0)
+submit_button.place(relx=0.5, rely=0.85, anchor="center")
+
+submit_button.bind("<Enter>", lambda e: submit_button.config(bg="#61BA78"))
+submit_button.bind("<Leave>", lambda e: submit_button.config(bg="#96F9AB"))
+
+icon1 = tk.PhotoImage(file="ingame_icon.png")
+iconlabel = tk.Label(settings, image=icon1, bg="#282A36")
+iconlabel.place(relx=0.1, rely=0.98, anchor="sw")
+settings.mainloop()
+
+
+# Generates a random graph represented by numbers 1 to 6
+def grid_generator(n: int) -> tuple[dict, list]:
+    """
+    Docstring for grid_generator
+
+    Time complexity: O(n^2)
+    :param n: Size of the grid
+    :return: A graph represented as adjacency list and a list of colors for each node.
+    :rtype: A tuple (graph, color)
+    """
+    color = [random.randint(1, 6) for _ in range(n*n)]
+
+    graph = {}
+    for i in range(n*n):
+        graph[i] = []
+        if (i + 1) < n**2 and (i + 1) % n != 0:
+            graph[i].append(i + 1)
+        if (i - 1) >= 0 and i % n != 0:
+            graph[i].append(i - 1)
+        if (i + n) < n**2:
+            graph[i].append(i + n)
+        if (i - n) >= 0:
+            graph[i].append(i - n)
+    return graph, color
+
+graph, color = grid_generator(SIZE)
+
+
+def grid_update(selected_color: int) -> bool:
+    """
+    Docstring for grid_update
+
+    :param selected_color: The next color selected by the player or computer.
+    This function should update the grid based on the selected color. It should change the color of the connected region starting from the top-left corner
+    to the new color and expand the connected region accordingly. It should return the updated grid. An example is shown below to illustrate the expected behavior:
+    :return: If the grid was updated successfully, return True. Else, return False.
+
+    Description of expected behavior:
+        Start from the top-left cell of the grid. That is, node 0. 
+        Change its color to the selected_color. That is color[0] = selected_color.
+        Go to each neighbor (bfs). that is, graph[0]. 
+        IFF neighbor color is same as graph's original color, do the same 3 steps for that neighbor.
+        Continue this process until all connected nodes with the original color have been changed to the selected_color
+    """
+    startN = 0
+    oldC = color[startN]
+    
+    if oldC == selected_color:
+        return False
+    
+    q = [startN]
+    visited = {startN}
+    color[startN] = selected_color
+
+    while q:
+        u = q.pop(0)
+        for v in graph[u]:
+            if v not in visited and color[v] == oldC:
+                color[v] = selected_color
+                visited.add(v)
+                q.append(v)
+    return True
+
+def greedy_color_selector(graph, color, C=6) -> int:
+    """
+    Docstring for greedy_color_selector
+
+    :param graph: The current graph state. It is a dictionary representing the adjacency list.
+    :param color: The current color of each node. It is a list
+    :return: The color that maximizes the connected region size when selected. TYPE IS INTEGER.
+    
+    This function should implement a greedy algorithm to select the next color to maximize the size of the connected region
+    starting from the top-left corner. It should analyze the current grid and return the color that would result in the largest
+    expansion of the connected region.
+
+    Common mistake to avoid: Do NOT just return the color which is most frequent in the grid. The goal is to maximize the connected region size,
+    not just to pick the most common color. You need to consider how each color choice would affect the connected region starting from the top-left corner.
+    Also, don't just look at the immediate neighbors; consider the potential chain reactions that could occur by selecting a particular color.
+
+    """
+    n = len(color)
+    start_color = color[0]
+
+    flooded = [False] * n
+    boundary = set()
+
+    # Step 1: Find current flooded region (BFS)
+    queue = [0]
+    flooded[0] = True
+
+    while queue:
+        u = queue.pop(0)
+        for v in graph[u]:
+            if not flooded[v] and color[v] == start_color:
+                flooded[v] = True
+                queue.append(v)
+
+    # Step 2: Build boundary
+    for u in range(n):
+        if flooded[u]:
+            for v in graph[u]:
+                if not flooded[v]:
+                    boundary.add(v)
+
+    # Step 3: Count colors on boundary
+    colorCount = [0] * (C + 1)
+    for v in boundary:
+        colorCount[color[v]] += 1
+
+    # Step 4: Create (count, color) pairs
+    colorPairs = []
+    for c in range(1, C + 1):
+        if c != start_color:
+            colorPairs.append([colorCount[c], c])
+
+    # Step 5: INSERTION SORT (descending by count)
+    for i in range(1, len(colorPairs)):
+        key = colorPairs[i]
+        j = i - 1
+
+        while j >= 0 and colorPairs[j][0] < key[0]:
+            colorPairs[j + 1] = colorPairs[j]
+            j -= 1
+
+        colorPairs[j + 1] = key
+
+    # Step 6: Return best color
+    return colorPairs[0][1]
+
+
+
+#####
+# DIVIDE AND CONQUER
+#####
+
+priority_list = dict()
+for i in COLORS:
+    priority_list[i] = 0
+
+def div_n_conq(current) -> int:
+    size = len(current)
+    # Stopping conditions
+    if size == 1:
+        return {current[0]:1}
+
+    # Recursive calls
+    first = div_n_conq(current[:size//2])
+    second = div_n_conq(current[size//2:])
+    combined = {}
+    for k, v in first.items():
+        combined[k] = combined.get(k, 0) + v
+
+    for k, v in second.items():
+        combined[k] = combined.get(k, 0) + v
+    return combined        
+
+def pick_color(color, new=True, priority_list= priority_list):
+    def get_max(priority_list):
+        # max = list(priority_list.keys())[0]
+        max = next(iter(priority_list))
+        for i in priority_list:
+            if priority_list[i] > priority_list[max]:
+                max = i
+        del priority_list[max]
+        return max
+
+    if new:
+        priority_list = div_n_conq(color)
+    return get_max(priority_list)
+
+
+########################################################################################
+# ------------------------------       GAME WINDOW       -------------------------------
+########################################################################################
+
+root = tk.Tk()
+root.geometry("1300x600")
+root.title("Flood It!")
+root.config(bg="#282A36")
+
+game_frame = tk.Frame(root, bd=1, relief="solid")
+game_frame.place(x=10, rely=0.5, width=550, height=550, anchor="w")
+
+canvas = tk.Canvas(game_frame, highlightthickness=0)
+canvas.place(relwidth=1, relheight=1)
+
+cell_size = 550 / SIZE
+
+current_turn = "Human"
+
+
+def apply_move(selected_color: int, source: str):
+    global MAX_MOVES, current_turn
+
+    if MAX_MOVES <= 0:
+        return False
+
+    # Ignore same-color selection
+    if selected_color == color[0]:
+        return False
+
+    change = grid_update(selected_color)
+    if change:
+        MAX_MOVES -= 1
+    draw_grid(color)
+
+    text.insert(
+        tk.END,
+        f"{source} selected color {COLOR_NAMES[selected_color]}. Remaining moves: {MAX_MOVES}\n"
+    )
+    text.see(tk.END)
+
+    # GAME OVER LOGIC
+    gameover = True
+    for i in color:
+        if i != color[0]:
+            gameover = False
+    if gameover:
+        text.insert(tk.END, "The board has been completed!\n\n               YOU WIN!\n")
+        canvas.unbind("<ButtonRelease-1>")
+        return False
+
+
+
+    if MAX_MOVES <= 0:
+        text.insert(tk.END, "Game Over! No more moves left.\n")
+        canvas.unbind("<ButtonRelease-1>")
+        return False
+
+    # Alternate mode: switch turns
+    if MODE == "Alternate":
+        current_turn = "Computer" if current_turn == "Human" else "Human"
+        if current_turn == "Computer":
+            root.after(800, computer_move)
+    return True
+
+
+# ---------------- HUMAN INPUT ---------------- #
+
+def on_click(event):
+    if MODE == "Computer":
+        return
+
+    if MODE == "Alternate" and current_turn != "Human":
+        return
+
+    col = int(event.x // cell_size)
+    row = int(event.y // cell_size)
+
+    if 0 <= row < SIZE and 0 <= col < SIZE:
+        node = row * SIZE + col
+        apply_move(color[node], "Human")
+    
+
+
+# ---------------- COMPUTER MOVE ---------------- #
+
+def computer_move():
+    if MAX_MOVES <= 0:
+        return
+
+    selected_color = greedy_color_selector(graph, color)
+    temp = apply_move(selected_color, "Computer")
+
+    if MODE == "Computer" and temp:
+        root.after(1000, computer_move)
+
+
+# ---------------- DRAW GRID ---------------- #
+
+def draw_grid(color):
+    canvas.delete("all")
+
+    for node in range(SIZE * SIZE):
+        row = node // SIZE
+        col = node % SIZE
+
+        x0 = col * cell_size
+        y0 = row * cell_size
+        x1 = x0 + cell_size
+        y1 = y0 + cell_size
+
+        canvas.create_rectangle(
+            x0, y0, x1, y1,
+            fill=COLORS[color[node]],
+            outline=""
+        )
+
+
+draw_grid(color)
+
+
+# ---------------- UI SIDE PANEL ---------------- #
+
+tk.Label(
+    root,
+    text=f"{MODE} Mode",
+    bg="#282A36",
+    fg="white",
+    font=("Arial", 24, "bold")
+).place(x=930, y=20, anchor="center")
+
+text_frame = tk.Frame(root)
+text_frame.place(x=930, y=70, width=700, height=500, anchor="n")
+
+scrollbar = tk.Scrollbar(text_frame)
+scrollbar.pack(side="right", fill="y")
+
+text = tk.Text(text_frame, yscrollcommand=scrollbar.set)
+text.pack(side="left", fill="both", expand=True)
+
+scrollbar.config(command=text.yview)
+
+
+# ---------------- MODE INITIALIZATION ---------------- #
+
+if MODE == "Human":
+    canvas.bind("<ButtonRelease-1>", on_click)
+
+elif MODE == "Computer":
+    root.after(1000, computer_move)
+
+elif MODE == "Alternate":
+    canvas.bind("<ButtonRelease-1>", on_click)
+    text.insert(tk.END, "Alternate Mode: Human starts.\n")
+
+icon2 = tk.PhotoImage(file="ingame_icon.png")
+iconlabel2 = tk.Label(root, image=icon2, bg="#282A36")
+iconlabel2.place(x=700, y=70, anchor="sw")
+
+root.mainloop()
