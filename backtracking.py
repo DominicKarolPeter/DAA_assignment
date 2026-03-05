@@ -129,3 +129,25 @@ def backtracking_solve(colors, depth, graph):
 
     return best_score
 
+
+def backtracking_color_selector(graph, colors):
+
+    options = boundary_options(graph, colors)
+
+    if len(options) == 1:
+        return next(iter(options))
+
+    best_move = None
+    best_score = -1
+
+    for color in options:
+
+        next_state = simulate_move(graph, colors, color)
+
+        score = backtracking_solve(next_state, SEARCH_DEPTH - 1, graph)
+
+        if score > best_score:
+            best_score = score
+            best_move = color
+
+    return best_move if best_move is not None else 1
