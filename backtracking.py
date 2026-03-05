@@ -26,3 +26,25 @@ implements a Flood-It game solver using a combination of Breadth-First Search (B
    along the boundary. By comparing the scores of different move sequences, the algorithm selects the color that maximizes 
    the flooded area and leads to the most promising board configuration.
 """
+
+
+from collections import deque
+from constants import SEARCH_DEPTH
+
+
+def get_flooded_size_sim(graph, colors):
+    start = 0
+    flood_color = colors[start]
+
+    queue = deque([start])
+    visited = {start}
+
+    while queue:
+        node = queue.popleft()
+
+        for neighbour in graph[node]:
+            if neighbour not in visited and colors[neighbour] == flood_color:
+                visited.add(neighbour)
+                queue.append(neighbour)
+
+    return len(visited)
