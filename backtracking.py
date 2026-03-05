@@ -48,3 +48,84 @@ def get_flooded_size_sim(graph, colors):
                 queue.append(neighbour)
 
     return len(visited)
+def simulate_move(graph, colors, new_color):
+    """
+    Creates a simulated board after applying a color move.
+    Does NOT modify the original board.
+    """
+
+    new_colors = colors.copy()
+    start = 0
+    old_color = new_colors[start]
+
+    if old_color == new_color:
+        return new_colors
+
+    queue = deque([start])
+    visited = {start}
+
+    new_colors[start] = new_color
+
+    while queue:
+        node = queue.popleft()
+
+        for neighbour in graph[node]:
+            if neighbour not in visited and new_colors[neighbour] == old_color:
+                visited.add(neighbour)
+                new_colors[neighbour] = new_color
+                queue.append(neighbour)
+
+    return new_colors
+
+
+
+def boundary_options(graph, colors):
+    start = 0
+    start_color = colors[start]
+
+    queue = deque([start])
+    visited = {start}
+    boundary_colors = set()
+
+    while queue:
+        node = queue.popleft()
+
+        for neighbour in graph[node]:
+            if neighbour not in visited:
+
+                if colors[neighbour] == start_color:
+                    visited.add(neighbour)
+                    queue.append(neighbour)
+                else:
+                    boundary_colors.add(colors[neighbour])
+
+    return boundary_colors
+
+
+def backtracking_solve(colors, depth, graph):
+
+    if depth == 0:
+        return get_flooded_size_sim(graph, colors)
+
+    options = boundary_options(graph, colors)
+
+    if not options:
+        return 9999
+
+    best_score = -1
+
+    for color in options:
+
+        next_state = simulate_move(graph, colors, color)
+
+        score = backtracking_solve(next_state, depth - 1, graph)
+
+        bonus = len(boundary_options(graph, next_state)) * 0.1
+
+        total_score = score + bonus
+
+        if total_score > best_score:
+            best_score = total_score
+
+    return best_score
+
