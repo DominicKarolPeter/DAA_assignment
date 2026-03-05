@@ -61,3 +61,23 @@ def boundary_options(graph,current_colors):
                 else:
                     boundaries.add(current_colors[neighbour])
     return boundaries
+
+def backtracking_color_selector(graph,current_colors):
+    best_move=None
+    max_overall_score=-1
+    options=boundary_options(graph,current_colors)
+
+    if len(options)==1:
+        return list(options)[0]
+    
+    for color_choice in options:
+        next_state=simulate_move(graph,current_colors,color_choice)
+        path_score=backtracking_solve(next_state,SEARCH_DEPTH-1,graph)
+        if path_score>max_overall_score:
+            max_overall_score=path_score
+            best_move=color_choice
+        
+        if best_move is None:
+            return 1
+        return best_move
+    
