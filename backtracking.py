@@ -65,18 +65,19 @@ def backtracking_solve(current_colors,depth,graph):
     if depth==0:
         return get_flooded_size_sim(graph,current_colors)
     options=boundary_options(graph,current_colors)
-    if not options:
+    if not options: #basically empty boundary
         return 9999
     
     best_score_path=-1
     for color_choice in options:
-        next_state=simulate_move(graph,current_colors,color_choice)
-        score=backtracking_solve(next_state,depth-1,graph)
+        next_state=simulate_move(graph,current_colors,color_choice)#hypothetical board when this color is selected
+        score=backtracking_solve(next_state,depth-1,graph)#similarly checking next best option
 
-        bonus=len(boundary_options(graph,next_state))*0.1
+        bonus=len(boundary_options(graph,next_state))*0.1 #adding small bonus to main score (not 1 bc it might hinder score)
         total_score=score+bonus
         if total_score>best_score_path:
             best_score_path=total_score
+
     return best_score_path
 
 def backtracking_color_selector(graph,current_colors):
@@ -85,7 +86,7 @@ def backtracking_color_selector(graph,current_colors):
     options=boundary_options(graph,current_colors)
 
     if len(options)==1:
-        return list(options)[0]
+        return list(options)[0] #one colour directly pic one
     
     for color_choice in options:
         next_state=simulate_move(graph,current_colors,color_choice)
