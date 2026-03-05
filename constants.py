@@ -23,4 +23,4 @@ SEARCH_DEPTH = 4 # Anything above 4 may cause lag
 
 
 ## MUSIC!
-VOLUME = 50
+VOLUME = 40
