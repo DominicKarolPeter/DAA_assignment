@@ -61,6 +61,23 @@ def boundary_options(graph,current_colors):
                 else:
                     boundaries.add(current_colors[neighbour])
     return boundaries
+def backtracking_solve(current_colors,depth,graph):
+    if depth==0:
+        return get_flooded_size_sim(graph,current_colors)
+    options=boundary_options(graph,current_colors)
+    if not options:
+        return 9999
+    
+    best_score_path=-1
+    for color_choice in options:
+        next_state=simulate_move(graph,current_colors,color_choice)
+        score=backtracking_solve(next_state,depth-1,graph)
+
+        bonus=len(boundary_options(graph,next_state))*0.1
+        total_score=score+bonus
+        if total_score>best_score_path:
+            best_score_path=total_score
+    return best_score_path
 
 def backtracking_color_selector(graph,current_colors):
     best_move=None
@@ -77,7 +94,7 @@ def backtracking_color_selector(graph,current_colors):
             max_overall_score=path_score
             best_move=color_choice
         
-        if best_move is None:
-            return 1
-        return best_move
+    if best_move is None:
+        return 1
+    return best_move
     
