@@ -27,7 +27,7 @@ def show_intro_screen(root):
     c = Canvas(intro_window, bg="#000044")
     c.pack(fill=BOTH, expand=1)
 
-    bgimg = Image.open("start_screen.png")
+    bgimg = Image.open("start_screen_new.png")
     bgimg = bgimg.resize((800, 650), Image.Resampling.LANCZOS)
     bgimg = ImageTk.PhotoImage(bgimg)
 
@@ -59,7 +59,7 @@ def show_intro_screen(root):
 
     #######################################
     # SELECT MODE
-    MODES = ["human", "alternate", "greedy", "divide_conquer", "dp"]
+    MODES = ["human", "backtracking", "greedy", "divide_conquer", "dp"]
 
     MODE_RECTS = [
         ((215, 385), (312, 510)),
