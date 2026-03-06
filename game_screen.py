@@ -1,5 +1,4 @@
 from tkinter import *
-import pygame as pg
 
 from graph_controller import grid_update
 from greedy import greedy_color_selector
