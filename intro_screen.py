@@ -27,7 +27,7 @@ def show_intro_screen(root):
     c = Canvas(intro_window, bg="#000044")
     c.pack(fill=BOTH, expand=1)
 
-    bgimg = Image.open("start_screen_new.png")
+    bgimg = Image.open("assets/start_screen_new.png")
     bgimg = bgimg.resize((800, 650), Image.Resampling.LANCZOS)
     bgimg = ImageTk.PhotoImage(bgimg)
 
