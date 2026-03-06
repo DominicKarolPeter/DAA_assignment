@@ -3,6 +3,7 @@ from tkinter import *
 from graph_controller import grid_update
 from greedy import greedy_color_selector
 from div_n_conq import div_n_conq
+from backtracking import backtracking_color_selector
 from dp import dp_color_selector
 from constants import COMPUTER_DELAY, COLOR_NAMES, COLORS, VOLUME
 
@@ -117,7 +118,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_soun
     # ---------------- HUMAN INPUT ---------------- #
 
     def on_click(event):
-        if MODE in ("greedy", "divide_conquer", "dp"):
+        if MODE in ("greedy", "divide_conquer", "dp", "backtracking"):
             return
 
         if MODE == "alternate" and current_turn != "You":
@@ -146,6 +147,10 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_soun
             selected_color = dp_color_selector(graph, color)
             temp = apply_move(selected_color, "Computer")
 
+        elif MODE == "backtracking":
+            selected_color = dp_color_selector(graph, color)
+            temp = apply_move(selected_color, "Computer")
+
         elif MODE == "divide_conquer":
             temp = False
             first_run = True
@@ -158,7 +163,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_soun
         else:
             return
 
-        if MODE in ("greedy", "divide_conquer", "dp") and temp:
+        if MODE in ("greedy", "divide_conquer", "dp", "backtracking") and temp:
             game_window.after(COMPUTER_DELAY, computer_move)
 
 
@@ -216,7 +221,7 @@ def show_game_screen(root, graph, color, MOVES, MODE, SIZE, win_sound, lose_soun
     if MODE == "human":
         canvas.bind("<ButtonRelease-1>", on_click)
 
-    elif MODE in ("greedy", "divide_conquer", "dp"):
+    elif MODE in ("greedy", "divide_conquer", "dp", "backtracking"):
         game_window.after(COMPUTER_DELAY, computer_move)
 
     elif MODE == "alternate":
